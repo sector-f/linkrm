@@ -11,10 +11,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	if os.Args[1] == "-h" || os.Args[1] == "--help" {
+		fmt.Fprintf(os.Stderr, "%v: removes target symbolic links and the files they point to\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "Will do nothing if used on a file that is not a symbolic link\n")
+		os.Exit(0)
+	}
+
 	for _, filename := range os.Args[1:] {
 		fileInfo, err := os.Lstat(filename)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error calling lstat on %v: %v\n", filename, err)
+			fmt.Fprintln(os.Stderr, err)
 			continue
 		}
 
@@ -25,19 +31,19 @@ func main() {
 
 		realName, err := os.Readlink(filename)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error calling readlink on %v: %v\n", filename, err)
+			fmt.Fprintln(os.Stderr, err)
 			continue
 		}
 
 		err = os.Remove(filename)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error deleting %v: %v\n", filename, err)
+			fmt.Fprintln(os.Stderr, err)
 			continue
 		}
 
 		err = os.Remove(realName)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error deleting %v: %v\n", realName, err)
+			fmt.Fprintln(os.Stderr, err)
 			continue
 		}
 	}
